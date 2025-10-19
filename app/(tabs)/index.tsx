@@ -1,98 +1,166 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import {
+  Image,
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+// 추천 도서 목록을 위한 가짜 데이터
+const similarBooks = [
+  { id: '1', image: require('../../assets/images/test_image.jpg') },
+  { id: '2', image: require('../../assets/images/test_image.jpg') },
+  { id: '3', image: require('../../assets/images/test_image.jpg') },
+  { id: '4', image: require('../../assets/images/test_image.jpg') },
+  { id: '5', image: require('../../assets/images/test_image.jpg') },
+];
 
+// 함수 이름을 HomeScreen으로 변경하여 명확하게 함
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* 헤더: 로고와 아이콘 */}
+        <View style={styles.header}>
+          <Text style={styles.logo}>책바퀴</Text>
+          <View style={styles.headerIcons}>
+            <Ionicons name="notifications-outline" size={24} color="black" style={styles.icon} />
+            <Ionicons name="person-outline" size={24} color="black" style={styles.icon} />
+            <Ionicons name="menu" size={28} color="black" />
+          </View>
+        </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        {/* 검색창 */}
+        <View style={styles.searchContainer}>
+          <Ionicons name="search" size={20} color="#888" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="검색어를 입력하세요"
+          />
+        </View>
+
+        {/* 메인 배너 */}
+        <ImageBackground 
+          source={{ uri: 'https://placehold.co/400x300/A9CCE3/FFF?text=Hong+Gildong' }} 
+          style={styles.mainBanner}
+          imageStyle={{ borderRadius: 12 }}
+        >
+          <View style={styles.bannerContent}>
+            <Text style={styles.bannerBadge}>오늘의 신작</Text>
+            <TouchableOpacity style={styles.bannerButton}>
+              <Text style={styles.bannerButtonText}>바로 읽기</Text>
+            </TouchableOpacity>
+          </View>
+        </ImageBackground>
+
+        {/* 유사한 책 섹션 */}
+        <View style={styles.similarSection}>
+          <Text style={styles.sectionTitle}>&lsquo;홍길동전&rsquo;과 유사한 책</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {similarBooks.map((book) => (
+              <TouchableOpacity key={book.id} style={styles.bookItem}>
+                <Image source={{ uri: book.image }} style={styles.bookImage} />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+  },
+  logo: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#E67E22',
+  },
+  headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  icon: {
+    marginLeft: 16,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginTop: 10,
+    marginBottom: 20,
+    marginHorizontal: 20,
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
+    marginLeft: 8,
+    fontSize: 16,
+  },
+  mainBanner: {
+    height: 250,
+    justifyContent: 'flex-end',
+    padding: 20,
+    marginBottom: 30,
+    marginHorizontal: 20,
+  },
+  bannerContent: {
+    alignItems: 'center',
+  },
+  bannerBadge: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    color: 'white',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    fontSize: 12,
+    marginBottom: 10,
+  },
+  bannerButton: {
+    backgroundColor: '#D2B48C',
+    paddingVertical: 12,
+    paddingHorizontal: 50,
+    borderRadius: 25,
+  },
+  bannerButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  similarSection: {
+    marginBottom: 20,
+    paddingLeft: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  bookItem: {
+    marginRight: 15,
+  },
+  bookImage: {
+    width: 120,
+    height: 180,
+    borderRadius: 8,
   },
 });
+
