@@ -11,8 +11,10 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+// --- 1. 그라데이션 라이브러리 import ---
+import { LinearGradient } from 'expo-linear-gradient';
 
-// 추천 도서 목록을 위한 가짜 데이터
+// 추천 도서 목록을 위한 로컬 이미지 데이터
 const similarBooks = [
   { id: '1', image: require('../../assets/images/test_image.jpg') },
   { id: '2', image: require('../../assets/images/test_image.jpg') },
@@ -21,7 +23,6 @@ const similarBooks = [
   { id: '5', image: require('../../assets/images/test_image.jpg') },
 ];
 
-// 함수 이름을 HomeScreen으로 변경하여 명확하게 함
 export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
@@ -45,18 +46,24 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* 메인 배너 */}
+        {/* 메인 배너 이미지 */}
         <ImageBackground 
-          source={{ uri: 'https://placehold.co/400x300/A9CCE3/FFF?text=Hong+Gildong' }} 
+          source={require('../../assets/images/test_image.jpg')} 
           style={styles.mainBanner}
           imageStyle={{ borderRadius: 12 }}
         >
-          <View style={styles.bannerContent}>
-            <Text style={styles.bannerBadge}>오늘의 신작</Text>
-            <TouchableOpacity style={styles.bannerButton}>
-              <Text style={styles.bannerButtonText}>바로 읽기</Text>
-            </TouchableOpacity>
-          </View>
+          {/* --- 2. 그라데이션 View 추가 --- */}
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.8)']}
+            style={styles.gradientOverlay}
+          >
+            <View style={styles.bannerContent}>
+              <Text style={styles.bannerBadge}>오늘의 신작</Text>
+              <TouchableOpacity style={styles.bannerButton}>
+                <Text style={styles.bannerButtonText}>바로 읽기</Text>
+              </TouchableOpacity>
+            </View>
+          </LinearGradient>
         </ImageBackground>
 
         {/* 유사한 책 섹션 */}
@@ -65,7 +72,17 @@ export default function HomeScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {similarBooks.map((book) => (
               <TouchableOpacity key={book.id} style={styles.bookItem}>
-                <Image source={{ uri: book.image }} style={styles.bookImage} />
+                <Image source={book.image} style={styles.bookImage} />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+                <View style={styles.similarSection}>
+          <Text style={styles.sectionTitle}>요즘 독자들의 선택</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {similarBooks.map((book) => (
+              <TouchableOpacity key={book.id} style={styles.bookItem}>
+                <Image source={book.image} style={styles.bookImage} />
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -116,11 +133,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   mainBanner: {
-    height: 250,
+    height: 500,
     justifyContent: 'flex-end',
-    padding: 20,
     marginBottom: 30,
     marginHorizontal: 20,
+  },
+  // --- 3. 그라데이션 스타일 추가 ---
+  gradientOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '60%', // 그라데이션 높이
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    borderRadius: 12,
+    padding: 20,
   },
   bannerContent: {
     alignItems: 'center',
@@ -161,6 +189,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 180,
     borderRadius: 8,
+    backgroundColor: 'lightgrey',
   },
 });
 
