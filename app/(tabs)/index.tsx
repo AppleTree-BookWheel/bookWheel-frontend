@@ -13,6 +13,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 // --- 1. 그라데이션 라이브러리 import ---
 import { LinearGradient } from 'expo-linear-gradient';
+// --- 2. Link 컴포넌트 import ---
+import { Link } from 'expo-router';
 
 // 추천 도서 목록을 위한 로컬 이미지 데이터
 const similarBooks = [
@@ -33,7 +35,13 @@ export default function HomeScreen() {
           <View style={styles.headerIcons}>
             <Ionicons name="notifications-outline" size={24} color="black" style={styles.icon} />
             <Ionicons name="person-outline" size={24} color="black" style={styles.icon} />
-            <Ionicons name="menu" size={28} color="black" />
+            {/* --- 3. 로그인 페이지로 이동하는 링크(버튼) 추가 --- */}
+            {/* '/login'은 app/login.tsx 파일을 가리킵니다. */}
+            <Link href="/login" asChild>
+              <TouchableOpacity>
+                <Ionicons name="log-out-outline" size={28} color="black" />
+              </TouchableOpacity>
+            </Link>
           </View>
         </View>
 
@@ -52,7 +60,6 @@ export default function HomeScreen() {
           style={styles.mainBanner}
           imageStyle={{ borderRadius: 12 }}
         >
-          {/* --- 2. 그라데이션 View 추가 --- */}
           <LinearGradient
             colors={['transparent', 'rgba(0,0,0,0.8)']}
             style={styles.gradientOverlay}
@@ -77,7 +84,9 @@ export default function HomeScreen() {
             ))}
           </ScrollView>
         </View>
-                <View style={styles.similarSection}>
+        
+        {/* 새로운 추천 섹션 */}
+        <View style={styles.similarSection}>
           <Text style={styles.sectionTitle}>요즘 독자들의 선택</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {similarBooks.map((book) => (
@@ -114,7 +123,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   icon: {
-    marginLeft: 16,
+    // --- 4. 로그아웃 아이콘과의 간격을 위해 오른쪽 마진 추가 ---
+    marginRight: 16,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -138,13 +148,12 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     marginHorizontal: 20,
   },
-  // --- 3. 그라데이션 스타일 추가 ---
   gradientOverlay: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    height: '60%', // 그라데이션 높이
+    height: '60%',
     justifyContent: 'flex-end',
     alignItems: 'center',
     borderRadius: 12,
