@@ -1,25 +1,21 @@
-import React, { useState } from 'react';
-import {
-    Alert,
-    Image // --- 1. Image import 추가 ---
-    ,
-
-
-    ImageBackground,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from 'react-native';
-// --- 2. LinearGradient import 추가 ---
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router'; // 페이지 이동을 위한 훅
+import React, { useState } from 'react';
+import {
+  Alert,
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -60,8 +56,11 @@ export default function SignupScreen() {
     }
     // TODO: 여기에 실제 회원가입 로직 구현 (API 호출, 데이터 저장 등)
     console.log('Signup attempt with:', { id, email, password, agreements });
-    Alert.alert('회원가입 성공', '회원가입이 완료되었습니다. 로그인 해주세요.');
-    router.replace('/login'); // 회원가입 성공 후 로그인 페이지로 이동
+    Alert.alert('회원가입 성공', '회원가입이 완료되었습니다. 취향 설문을 시작합니다.');
+    
+    // --- 여기를 수정했습니다! ---
+    // 회원가입 성공 후 '/login' 대신 '/survey' 페이지로 이동합니다.
+    router.replace('/survey'); 
   };
 
   const handleIdCheck = () => {
