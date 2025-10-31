@@ -45,7 +45,17 @@ export default function TabLayout() {
           ),
         }}
       />
+
+             {/* 4. 파티 탭 (party_main.tsx) */}
+      <Tabs.Screen
+        name="party_main" // app/(tabs)/party_main.tsx 파일을 가리킵니다.
+        options={{
+          title: '파티', // 탭 바에 표시될 이름
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="people-outline" size={24} color={color} />
+          ),
+        }}
+      />
     </Tabs>
-    
   );
 }
