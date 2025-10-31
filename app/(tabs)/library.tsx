@@ -1,167 +1,314 @@
-import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import { Ionicons } from '@expo/vector-icons';
+import { Link } from 'expo-router';
+import React, { useState } from 'react';
 import {
-    ScrollView,
+    FlatList,
+    Image,
+    Modal,
+    SafeAreaView,
     StyleSheet,
     Text,
     TouchableOpacity,
+    TouchableWithoutFeedback,
     View
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-// --- 1. Link 컴포넌트 import ---
-import { Link } from "expo-router";
+} from 'react-native';
 
-// 추천 도서 목록을 위한 로컬 이미지 데이터
-const similarBooks = [
-  { id: "1", image: require("../../assets/images/test_image.jpg") },
-  { id: "2", image: require("../../assets/images/test_image.jpg") },
-  { id: "3", image: require("../../assets/images/test_image.jpg") },
-  { id: "4", image: require("../../assets/images/test_image.jpg") },
-  { id: "5", image: require("../../assets/images/test_image.jpg") },
+// 내 서재에 표시할 임시 도서 데이터
+const myBooks = [
+  { id: '1', title: '홍길동전', image: require('../../assets/images/test_image.jpg') },
+  { id: '2', title: '홍길동전', image: require('../../assets/images/test_image.jpg') },
+  { id: '3', title: '홍길동전', image: require('../../assets/images/test_image.jpg') },
+  { id: '4', title: '홍길동전', image: require('../../assets/images/test_image.jpg') },
+  { id: '5', title: '홍길동전', image: require('../../assets/images/test_image.jpg') },
+  { id: '6', title: '홍길동전', image: require('../../assets/images/test_image.jpg') },
 ];
 
-export default function HomeScreen() {
+// 정렬 옵션 목록
+const sortOptions = [
+  '최근 담은 순', '최근 본 순', 
+  '책 제목 순', '저자명 순', 
+  '최근 발행 순', '출판사 순'
+];
+
+export default function LibraryScreen() {
+  const [modalVisible, setModalVisible] = useState(false); // 정렬 모달 표시 여부
+  const [sortOption, setSortOption] = useState('최근 본 순'); // 현재 선택된 정렬 옵션
+
+  // 책 그리드 아이템 렌더링
+  const renderBookItem = ({ item }: { item: typeof myBooks[0] }) => (
+    <TouchableOpacity style={styles.bookItem}>
+      <Image source={item.image} style={styles.bookImage} />
+      <Text style={styles.bookTitle}>{item.title}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* 헤더: 로고와 아이콘 */}
-        <View style={styles.header}>
-          <Text style={styles.logo}>책바퀴</Text>
-          <View style={styles.headerIcons}>
-            {/* 1. Bell Icon (종) */}
-            <TouchableOpacity style={styles.icon}>
-              <Ionicons name="notifications-outline" size={26} color="black" />
-            </TouchableOpacity>
-            
-            {/* 2. Mail Icon (편지) */}
-            <TouchableOpacity style={styles.icon}>
-              <Ionicons name="mail-outline" size={26} color="black" />
-            </TouchableOpacity>
-
-            {/* 3. Person Icon (사람) - 임시로 /login 링크 유지 */}
-            <Link href="/login" asChild>
-              <TouchableOpacity style={styles.icon}>
-                <Ionicons name="person-outline" size={26} color="black" />
-              </TouchableOpacity>
-            </Link>
-          </View>
-        </View>
-
-        {/* --- 2. 검색창 수정 --- */}
-        {/* Link로 감싸서 '/search' (app/search.tsx) 페이지로 이동시킵니다. */}
-        <Link href="../search" asChild>
-          <TouchableOpacity style={styles.searchContainer}>
-            <Ionicons name="search" size={20} color="#888" />
-            {/* TextInput을 Text로 변경하여 '가짜' 검색창으로 만듭니다. */}
-            <Text style={styles.searchInputText}>검색어를 입력하세요</Text>
+      {/* 1. 홈 화면과 동일한 헤더 */}
+      <View style={styles.header}>
+        <Text style={styles.logo}>책바퀴</Text>
+        <View style={styles.headerIcons}>
+          <TouchableOpacity style={styles.icon}>
+            <Ionicons name="notifications-outline" size={26} color="black" />
           </TouchableOpacity>
-        </Link>
+          <TouchableOpacity style={styles.icon}>
+            <Ionicons name="mail-outline" size={26} color="black" />
+          </TouchableOpacity>
+          <Link href="/login" asChild>
+            <TouchableOpacity style={styles.icon}>
+              <Ionicons name="person-outline" size={26} color="black" />
+            </TouchableOpacity>
+          </Link>
+        </View>
+      </View>
 
-      </ScrollView>
+      {/* 2. 홈 화면과 동일한 검색창 */}
+      <Link href="/search" asChild>
+        <TouchableOpacity style={styles.searchContainer}>
+          <Ionicons name="search" size={20} color="#888" />
+          <Text style={styles.searchInputText}>검색어를 입력하세요</Text>
+        </TouchableOpacity>
+      </Link>
+
+      {/* 3. '내 서재' 타이틀 및 정렬 버튼 */}
+      <View style={styles.libraryHeader}>
+        <Text style={styles.pageTitle}>내 서재</Text>
+        <TouchableOpacity style={styles.sortButton} onPress={() => setModalVisible(true)}>
+          <Ionicons name="swap-vertical" size={16} color="#555" />
+          <Text style={styles.sortButtonText}>{sortOption}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* 4. 책 목록 그리드 */}
+      <FlatList
+        data={myBooks}
+        renderItem={renderBookItem}
+        keyExtractor={item => item.id}
+        numColumns={2} // 2열 그리드
+        contentContainerStyle={styles.bookList}
+      />
+
+      {/* 5. 정렬 옵션 모달 (Bottom Sheet) */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          {/* 모달 배경 (어둡게 처리) */}
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              {/* 모달 콘텐츠 */}
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>정렬</Text>
+                
+                {/* 정렬 옵션 버튼 그리드 */}
+                <View style={styles.sortOptionsGrid}>
+                  {sortOptions.map(option => (
+                    <TouchableOpacity
+                      key={option}
+                      style={[
+                        styles.sortOptionButton,
+                        sortOption === option && styles.sortOptionButtonActive
+                      ]}
+                      onPress={() => setSortOption(option)}
+                    >
+                      <Text style={[
+                        styles.sortOptionText,
+                        sortOption === option && styles.sortOptionTextActive
+                      ]}>{option}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* 닫기 / 적용하기 버튼 */}
+                <View style={styles.modalActions}>
+                  <TouchableOpacity style={[styles.modalButton, styles.closeButton]} onPress={() => setModalVisible(false)}>
+                    <Text style={styles.closeButtonText}>닫기</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.modalButton, styles.applyButton]} 
+                    onPress={() => {
+                      // TODO: 정렬 로직 실제로 적용
+                      setModalVisible(false); // 모달 닫기
+                    }}
+                  >
+                    <Text style={styles.applyButtonText}>적용하기</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </SafeAreaView>
   );
 }
 
-// --- 3. 스타일 수정 ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
+  // --- 헤더 및 검색창 스타일 (index.tsx와 동일) ---
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 20,
   },
   logo: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: "#E67E22",
+    fontWeight: 'bold',
+    color: '#E67E22',
   },
   headerIcons: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   icon: {
-    marginRight: 16,
+    marginLeft: 18,
   },
-  searchContainer: {
-    // 이제 TouchableOpacity가 이 스타일을 사용
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
+  searchContainer: { 
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
     borderRadius: 8,
     paddingHorizontal: 12,
     marginTop: 10,
     marginBottom: 20,
     marginHorizontal: 20,
-    height: 40, // 높이를 명시적으로 지정
+    height: 40, 
   },
-  // TextInput 스타일 대신 Text 스타일로 변경
-  searchInputText: {
+  searchInputText: { 
     flex: 1,
     marginLeft: 8,
     fontSize: 16,
-    color: "#888", // placeholder와 비슷하게 보이도록 색상 변경
+    color: '#888', 
   },
-  mainBanner: {
-    height: 500,
-    justifyContent: "flex-end",
-    marginBottom: 30,
-    marginHorizontal: 20,
-  },
-  gradientOverlay: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: "60%",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    borderRadius: 12,
-    padding: 20,
-  },
-  bannerContent: {
-    alignItems: "center",
-  },
-  bannerBadge: {
-    backgroundColor: "rgba(0,0,0,0.5)",
-    color: "white",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-    fontSize: 12,
-    marginBottom: 10,
-  },
-  bannerButton: {
-    backgroundColor: "#D2B48C",
-    paddingVertical: 12,
-    paddingHorizontal: 50,
-    borderRadius: 25,
-  },
-  bannerButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  similarSection: {
+  // --- '내 서재' 전용 스타일 ---
+  libraryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
     marginBottom: 20,
-    paddingLeft: 20,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 15,
+  pageTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  sortButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+  },
+  sortButtonText: {
+    fontSize: 14,
+    marginLeft: 4,
+    color: '#555',
+  },
+  // --- 책 그리드 스타일 ---
+  bookList: {
+    paddingHorizontal: 15, // 좌우 여백
   },
   bookItem: {
-    marginRight: 15,
+    flex: 1, // 각 아이템이 2열 중 1칸을 차지
+    margin: 5,
+    alignItems: 'center',
   },
   bookImage: {
-    width: 120,
-    height: 180,
+    width: '100%',
+    height: 220, // 책 표지 높이
     borderRadius: 8,
-    backgroundColor: "lightgrey",
+    backgroundColor: 'lightgrey',
+    marginBottom: 8,
+  },
+  bookTitle: {
+    fontSize: 15,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  // --- 정렬 모달 스타일 ---
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // 반투명 배경
+    justifyContent: 'flex-end', // 화면 하단에 위치
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    paddingBottom: 30, // 하단 여백 추가
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  sortOptionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap', // 2열로 자동 줄바꿈
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  sortOptionButton: {
+    width: '48%', // 2열 배치 (간격 포함)
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  sortOptionButtonActive: {
+    backgroundColor: '#E67E22', // 활성 버튼 색상
+    borderWidth: 2,
+    borderColor: '#D35400',
+  },
+  sortOptionText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  sortOptionTextActive: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 20,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closeButton: {
+    backgroundColor: '#A0A0A0',
+    marginRight: 10,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  applyButton: {
+    backgroundColor: '#E67E22',
+  },
+  applyButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
+
