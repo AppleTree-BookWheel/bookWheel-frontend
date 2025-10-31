@@ -31,21 +31,20 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <Text style={styles.logo}>책바퀴</Text>
           <View style={styles.headerIcons}>
-            <Ionicons
-              name="notifications-outline"
-              size={24}
-              color="black"
-              style={styles.icon}
-            />
-            <Ionicons
-              name="person-outline"
-              size={24}
-              color="black"
-              style={styles.icon}
-            />
+            {/* 1. Bell Icon (종) */}
+            <TouchableOpacity style={styles.icon}>
+              <Ionicons name="notifications-outline" size={26} color="black" />
+            </TouchableOpacity>
+            
+            {/* 2. Mail Icon (편지) */}
+            <TouchableOpacity style={styles.icon}>
+              <Ionicons name="mail-outline" size={26} color="black" />
+            </TouchableOpacity>
+
+            {/* 3. Person Icon (사람) - 임시로 /login 링크 유지 */}
             <Link href="/login" asChild>
-              <TouchableOpacity>
-                <Ionicons name="log-out-outline" size={28} color="black" />
+              <TouchableOpacity style={styles.icon}>
+                <Ionicons name="person-outline" size={26} color="black" />
               </TouchableOpacity>
             </Link>
           </View>

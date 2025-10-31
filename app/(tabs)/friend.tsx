@@ -1,6 +1,7 @@
 import { FontAwesome } from '@expo/vector-icons'; // 아이콘을 사용하기 위해 import
 import React from 'react';
-import { SafeAreaView, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ExploreScreen() {
   return (
